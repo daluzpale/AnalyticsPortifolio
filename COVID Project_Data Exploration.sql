@@ -71,4 +71,68 @@ Where continent IS NOT NULL
 --Group by date
 Order by 1,2
 
+-- Looking at the Total Population vs Vaccinations
+-- Use CTE
 
+With PopvsVac (Continent, Location, Date, Population, New_vaccinations, RollingPeopleVaccinated)
+as
+(
+Select dea.continent, dea.location, dea.date, dea.population, new_vaccinations,
+SUM(CONVERT(int, vac.new_vaccinations)) OVER (Partition by dea.location Order by dea.location, dea.Date)
+as RollingPeopleVaccinated
+--, (RollingPeopleVaccinated/Population)*100
+From PortifolioProject..CovidDeaths dea
+Join PortifolioProject..CovidVaccinations vac
+	on dea.location = vac.location
+	and dea.date = vac.date
+Where dea.continent is not null
+--Order by 2,3
+)
+
+Select *, (RollingPeopleVaccinated/Population)*100
+From PopvsVac
+
+
+-- TEMP TABLE
+
+Drop table if exists #PercentPopulationVaccinated
+Create Table #PercentPopulationVaccinated
+(
+Continent nvarchar(255),
+Location nvarchar(255),
+Date datetime,
+Population numeric,
+New_vaccinations numeric,
+RollingPeopleVaccinated numeric 
+)
+
+Insert into #PercentPopulationVaccinated
+Select dea.continent, dea.location, dea.date, dea.population, new_vaccinations,
+SUM(CONVERT(int, vac.new_vaccinations)) OVER (Partition by dea.location Order by dea.location, dea.Date)
+as RollingPeopleVaccinated
+--, (RollingPeopleVaccinated/Population)*100
+From PortifolioProject..CovidDeaths dea
+Join PortifolioProject..CovidVaccinations vac
+	on dea.location = vac.location
+	and dea.date = vac.date
+--Where dea.continent is not null
+--Order by 2,3
+
+Select *, (RollingPeopleVaccinated/Population)*100
+From #PercentPopulationVaccinated
+
+
+
+--Creating view to store data for later visualization
+
+Create View PercentPopulationVaccinated as 
+Select dea.continent, dea.location, dea.date, dea.population, new_vaccinations,
+SUM(CONVERT(int, vac.new_vaccinations)) OVER (Partition by dea.location Order by dea.location, dea.Date)
+as RollingPeopleVaccinated
+--, (RollingPeopleVaccinated/Population)*100
+From PortifolioProject..CovidDeaths dea
+Join PortifolioProject..CovidVaccinations vac
+	on dea.location = vac.location
+	and dea.date = vac.date
+Where dea.continent is not null
+--Order by 2,3
