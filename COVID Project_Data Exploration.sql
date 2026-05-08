@@ -123,16 +123,30 @@ From #PercentPopulationVaccinated
 
 
 
---Creating view to store data for later visualization
+--Creating view to store data for later visualizations
 
-Create View PercentPopulationVaccinated as 
-Select dea.continent, dea.location, dea.date, dea.population, new_vaccinations,
-SUM(CONVERT(int, vac.new_vaccinations)) OVER (Partition by dea.location Order by dea.location, dea.Date)
-as RollingPeopleVaccinated
---, (RollingPeopleVaccinated/Population)*100
-From PortifolioProject..CovidDeaths dea
-Join PortifolioProject..CovidVaccinations vac
-	on dea.location = vac.location
-	and dea.date = vac.date
-Where dea.continent is not null
---Order by 2,3
+ALTER VIEW PercentPopulationVaccinated AS
+
+SELECT 
+    dea.continent,
+    dea.location,
+    dea.date,
+    dea.population,
+    vac.new_vaccinations,
+
+    SUM(CONVERT(int, vac.new_vaccinations)) 
+        OVER (
+            PARTITION BY dea.Location 
+            ORDER BY dea.location, dea.Date
+        ) AS RollingPeopleVaccinated
+
+FROM PortifolioProject..CovidDeaths dea
+
+JOIN PortifolioProject..CovidVaccinations vac
+    ON dea.location = vac.location
+    AND dea.date = vac.date
+
+WHERE dea.continent IS NOT NULL;
+
+Select *
+From PercentPopulationVaccinated
