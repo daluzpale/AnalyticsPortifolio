@@ -1,2 +1,2 @@
 # AnalyticsPortifolio
-Turning data into stories. This repository showcases projects where raw numbers become clear insights, visualizations, and actionable conclusions, using Python, SQL, and modern analytics tools.
+A portfolio of data analysis projects that transform messy, real-world datasets into clear visualizations and actionable conclusions — built with Python, SQL, and modern analytics tools.
